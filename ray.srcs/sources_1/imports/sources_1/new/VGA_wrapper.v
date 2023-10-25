@@ -55,7 +55,7 @@ module VGA_wrapper(
     integer iypos = 480/2;
     integer fxpos = 640/2 << 14;
     integer fypos = 480/2 << 14;
-    integer dir = 2;
+    integer dir = 1'b0;
     localparam signed [15:0] PI_POS = 16'b0110_0100_1000_1000;
     localparam signed [15:0] PI_NEG = 16'b1001_1011_0111_1000;
     localparam PHASE_INC = 256;
@@ -74,29 +74,23 @@ module VGA_wrapper(
         for (row = 0; row < 8; row = row+1) begin
             for (col = 0; col < 8; col = col + 1) begin
                 if ((map[row] >> (7 - col)) & 1'b1) begin
-                    if ((ixpos < col*scale + dude_size + scale && ixpos > col*scale - dude_size) 
-                    && (iypos > (row*scale - dude_size) && iypos < (row*scale + scale + dude_size))) begin
-                        collision = 1;
-                        if (dir) begin
-                            fypos = fypos - sin*2;
-                            fxpos = fxpos + cos*2;
-                        end
-                        else if (~dir) begin
-                            fypos = fypos + sin*2;
-                            fxpos = fxpos - cos*2;
-                        end
-                     
-                        
-                    end
-//                    if ((ixpos > col*scale - dude_size && ixpos <= col*scale - dude_size + scale/3) 
-//                    && (iypos > (row*scale - dude_size) && iypos < (row*scale + scale + dude_size)))
-//                        fxpos = (col*scale - dude_size) << 14;
-//                    if ((iypos < row*scale + dude_size + scale && iypos >= row*scale + dude_size + scale - scale/3) 
-//                    && (ixpos > (col*scale - dude_size) && ixpos < (col*scale + scale + dude_size)))
-//                        fypos = (row*scale + dude_size + scale) << 14;
-//                    if ((iypos > row*scale - dude_size && iypos <= row*scale - dude_size + scale/3) 
-//                    && (ixpos > (col*scale - dude_size) && ixpos < (col*scale + scale + dude_size)))
-//                        fypos = (row*scale - dude_size) << 14;
+
+                    // left wall
+                    if ((ixpos < col*scale + dude_size + scale && ixpos >= col*scale + dude_size + scale - scale/3)
+                    && (iypos > (row*scale - dude_size + 3) && iypos < (row*scale + scale + dude_size - 3)))
+                        fxpos = (col*scale + dude_size + scale) << 14;
+                    // right wall
+                    else if ((ixpos > col*scale - dude_size && ixpos <= col*scale - dude_size + scale/3) 
+                    && (iypos > (row*scale - dude_size + 3) && iypos < (row*scale + scale + dude_size - 3)))
+                        fxpos = (col*scale - dude_size) << 14;
+                    // bottom wall
+                    if ((iypos < row*scale + dude_size + scale && iypos >= row*scale + dude_size + scale - scale/3) 
+                    && (ixpos > (col*scale - dude_size + 3) && ixpos < (col*scale + scale + dude_size - 3)))
+                        fypos = (row*scale + dude_size + scale) << 14;
+                    // top wall
+                    else if ((iypos > row*scale - dude_size && iypos <= row*scale - dude_size + scale/3) 
+                    && (ixpos > (col*scale - dude_size + 3) && ixpos < (col*scale + scale + dude_size - 3)))
+                        fypos = (row*scale - dude_size) << 14;
                 end
             end
         end
@@ -177,10 +171,9 @@ module VGA_wrapper(
             angle = angle - PHASE_INC;
         ixpos = fxpos >> 14;
         iypos = fypos >> 14;
-        collision(0);
+        collision(1);
         ixpos = fxpos >> 14;
         iypos = fypos >> 14;
-        
         
         if (angle > PI_POS)
             angle = angle + PI_NEG - PI_POS;
