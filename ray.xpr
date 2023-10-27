@@ -3,7 +3,7 @@
 <!--                                                         -->
 <!-- Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.   -->
 
-<Project Version="7" Minor="5" Path="C:/Xilinx/Projects/FPGA-Raytracing/ray.xpr">
+<Project Version="7" Minor="5" Path="C:/Xilinx/Projects/FPGA-Raycasting/ray.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="31b3790be4fe4421b76741dbfa6e80d2"/>

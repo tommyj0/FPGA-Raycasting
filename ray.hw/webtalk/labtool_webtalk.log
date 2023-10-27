@@ -4,10 +4,10 @@
   **** IP Build 1264090 on Wed Jun 24 14:22:01 MDT 2015
     ** Copyright 1986-2015 Xilinx, Inc. All Rights Reserved.
 
-source C:/Xilinx/Projects/ray/ray.hw/webtalk/labtool_webtalk.tcl -notrace
+source C:/Xilinx/Projects/FPGA-Raycasting/ray.hw/webtalk/labtool_webtalk.tcl -notrace
 Access is denied.
 
     while executing
-"webtalk_transmit -clientid 3947712655 -regid "212796689_0_0_244" -xml C:/Xilinx/Projects/ray/ray.hw/webtalk/usage_statistics_ext_labtool.xml -html C:/..."
-    (file "C:/Xilinx/Projects/ray/ray.hw/webtalk/labtool_webtalk.tcl" line 35)
-INFO: [Common 17-206] Exiting Webtalk at Fri Oct 20 21:11:14 2023...
+"webtalk_transmit -clientid 3888572185 -regid "212796689_0_0_244" -xml C:/Xilinx/Projects/FPGA-Raycasting/ray.hw/webtalk/usage_statistics_ext_labtool.x..."
+    (file "C:/Xilinx/Projects/FPGA-Raycasting/ray.hw/webtalk/labtool_webtalk.tcl" line 35)
+INFO: [Common 17-206] Exiting Webtalk at Fri Oct 27 12:41:52 2023...

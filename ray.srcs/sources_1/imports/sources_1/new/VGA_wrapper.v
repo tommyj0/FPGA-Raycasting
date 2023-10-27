@@ -7,14 +7,13 @@ module VGA_wrapper(
     input CLK,
     input [3:0] BTN,
     
-    output reg [11:0] COLOUR_OUT,
+    output [11:0] COLOUR_OUT,
     output HS,
     output VS,
     output reg [15:0] led
     );
     
     // module instantiation
-    wire [11:0] COLOUR_OOT;
     reg [11:0] COLOUR;
     wire [8:0] Y;
     wire [9:0] X;
@@ -31,7 +30,7 @@ module VGA_wrapper(
                    .COLOUR_IN(COLOUR),
                    .ADDRH(X),
                    .ADDRV(Y),
-                   .COLOUR_OUT(COLOUR_OOT),
+                   .COLOUR_OUT(COLOUR_OUT),
                    .HS(HS),
                    .VS(VS),
                    .FRAME(FRAME)
@@ -98,19 +97,19 @@ module VGA_wrapper(
     endfunction
     
     // draws a rectangle given the bottom left coord as (X1,Y1) and top left coord (X2,Y2)
-    function [11:0] rectangle (input [11:0] colour_in, input [9:0] X, input [8:0] Y, integer X1,Y1,X2,Y2, integer color);
+    function [11:0] rectangle (integer X1,Y1,X2,Y2, integer color);
     begin
         Y1 = height - Y1;
         Y2 = height - Y2;
         if (X >= X1 && X < X2 && Y > Y2 && Y <= Y1)
             rectangle = color;
         else
-            rectangle = colour_in;
+            rectangle = COLOUR;
     end
     endfunction
     
     // draws a line based on 2 coords
-    function [11:0] line (input [11:0] colour_in, input [9:0] X, input [8:0] Y, integer X1,Y1, integer color);
+    function [11:0] line (integer X1,Y1, integer color);
         integer  grad;
         integer yoff;
         begin
@@ -118,14 +117,25 @@ module VGA_wrapper(
         Y1 = height - Y1;
         grad = (sin*(2**5))/cos;
         yoff = Y1*(2**5) - grad*X1;
-        if (Y*(2**5) >= (grad)*X + yoff - 3*(2**5) && Y*(2**5) <= (grad)*X + yoff + 3*(2**5))
-            line = color;
+        if (Y*(2**5) >= (grad)*X + yoff - 3*(2**5) && Y*(2**5) <= (grad)*X + yoff + 3*(2**5)) begin
+            if (cos >= 0 && sin >= 0 && X < X1 && Y < Y1)
+                line = color;
+            else if (cos <= 0 && sin >= 0 && X > X1 && Y < Y1)
+                line = color;
+            else if (cos <= 0 && sin <= 0 && X > X1 && Y > Y1)
+                line = color;
+            else if (cos >= 0 && sin <= 0 && X < X1 && Y > Y1)
+                line = color;
+            else
+                line = COLOUR;
+        end
         else
-            line = colour_in;
+            line = COLOUR;
 
     end
     endfunction
-
+    // end of functions
+    
     always@(posedge FRAME) begin
         map[7] <= 8'b11111111;
         map[6] <= 8'b10110001;
@@ -135,7 +145,6 @@ module VGA_wrapper(
         map[2] <= 8'b10110001;
         map[1] <= 8'b10000011;
         map[0] <= 8'b11111111;
-
     end
     
     
@@ -145,12 +154,12 @@ module VGA_wrapper(
         for (row = 0; row < 8; row = row+1) begin
             for (col = 0; col < 8; col = col + 1) begin
                 if ((map[row] >> (7 - col)) & 1'b1)
-                    COLOUR = rectangle(COLOUR,X,Y,col*scale,row*scale,col*scale + scale, row*scale + scale, 12'h077);
+                    COLOUR = rectangle(col*scale,row*scale,col*scale + scale, row*scale + scale, 12'h077);
             end
         end
         //draw dude
-        COLOUR = rectangle(COLOUR,X,Y,ixpos - dude_size, iypos - dude_size, ixpos + dude_size, iypos + dude_size, 12'hF0F);
-        COLOUR = line(COLOUR,X,Y,ixpos,iypos,12'hF00);
+        COLOUR = rectangle(ixpos - dude_size, iypos - dude_size, ixpos + dude_size, iypos + dude_size, 12'hF0F);
+        COLOUR = line(ixpos,iypos,12'hF00);
     end
     // Frame based operations
     always@(posedge FRAME) begin
@@ -180,9 +189,5 @@ module VGA_wrapper(
         if (angle < PI_NEG)
             angle = angle + PI_POS - PI_NEG;
     end
-    // ignore
-    always @(posedge CLK) begin
-        COLOUR_OUT <= COLOUR_OOT;
-    end
-    
+
 endmodule
